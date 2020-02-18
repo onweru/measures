@@ -10,74 +10,62 @@ import SwiftUI
 
 struct ContentView: View {
   
-  @State private var unitsToConvert = ""
-  @State private var fromUnits = 0
-  @State private var toUnits = 0
+  @State private var units = ""
+  @State private var selectedInputUnit = 0
+  @State private var selectedOutputUnit = 1
   
-  let timeUnits = ["seconds", "minutes", "hours"]
-  
-  var convertedUnits: Double {
+  let conversionUnits = ["Celsius", "Fahrenheit", "Kelvin"]
     
-    let units = Double(unitsToConvert) ?? 0
-    let from = timeUnits[fromUnits]
-    let to = timeUnits[toUnits]
+  var results: Double {
     
-    var result: Double = 0
+    let tempUnits = Double(units) ?? 0
     
-    switch (from, to) {
-    case ("seconds", "minutes"):
-      result = units / 60 ;
-    case ("seconds", "hours"):
-      result = units / (60 * 60);
-    case ("minutes", "seconds"):
-      result = units * 60
-    case ("minutes", "hours"):
-      result = units / 60
-    case ("hours", "seconds"):
-      result = units * 60 * 60
-    case ("hours", "minutes"):
-      result = units * 60
+    switch (selectedInputUnit, selectedOutputUnit) {
+    case (0, 1):
+        return (tempUnits * 9 / 5) + 32
+    case (0, 2):
+        return tempUnits + 273.15
+    case (1, 0):
+        return (tempUnits - 32) * 5 / 9
+    case (1, 2):
+        return ((tempUnits - 32) * 5 / 9) + 273.15
+    case (2, 0):
+        return tempUnits - 273.15
+    case (2, 1):
+        return ((tempUnits - 273.15) * 9 / 5) + 32
     default:
-      result = units
+        return tempUnits
     }
-    
-    return result
+
   }
   
-  
   var body: some View {
-    NavigationView {
-      
-      Form {
-        
-        Section(header: Text("Units")) {
-          TextField("Units to convert", text: $unitsToConvert)
-            .keyboardType(.decimalPad)
+    Form {
+        Section(header: Text("Units to convert")) {
+            TextField("Enter Units", text: $units).keyboardType(.decimalPad)
         }
         
-        Section(header: Text("From")) {
-          Picker("From", selection: $fromUnits) {
-            ForEach (0 ..< timeUnits.count) {
-              Text(self.timeUnits[$0])
+        Section(header: Text("Input Units")) {
+            Picker("Units Label", selection: $selectedInputUnit) {
+                ForEach(0 ..< conversionUnits.count) {
+                    Text("\(self.conversionUnits[$0])")
+                }
             }
-          }
-          .pickerStyle(SegmentedPickerStyle())
+            .pickerStyle(SegmentedPickerStyle())
         }
         
-        Section(header: Text("To")) {
-          Picker("To", selection: $toUnits) {
-            ForEach (0 ..< timeUnits.count) {
-              Text(self.timeUnits[$0])
+        Section(header: Text("Output Units")) {
+            Picker("Units Label", selection: $selectedOutputUnit) {
+                ForEach(0 ..< conversionUnits.count) {
+                    Text("\(self.conversionUnits[$0])")
+                }
             }
-          }
-          .pickerStyle(SegmentedPickerStyle())
+            .pickerStyle(SegmentedPickerStyle())
         }
         
-        Section(header: Text("Results")) {
-          Text("\(convertedUnits, specifier: "%.1f")")
+        Section(header: Text("Conversion Results")) {
+            Text("\(results, specifier: "%.2f")")
         }
-        
-      }
     }
   }
 }
